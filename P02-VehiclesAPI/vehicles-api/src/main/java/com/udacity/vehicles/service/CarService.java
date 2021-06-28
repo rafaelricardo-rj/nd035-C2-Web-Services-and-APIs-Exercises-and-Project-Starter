@@ -51,16 +51,11 @@ public class CarService {
          *   If it does not exist, throw a CarNotFoundException
          *   Remove the below code as part of your implementation.
          */
-        //Optional<Car> optionalCar = Optional.ofNullable(repository.getOne(id));
-        /*
-        The line above was replaced for the line below because I had some issues with error 500.
-        Error: nested exception is com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer found for class org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor
-        Solution found in StackOverflow by Szelek.
-        "Basically getOne is a lazy load operation. Thus you get only a reference (a proxy) to the entity. That means no DB access is actually made. Only when you call it's properties then it will query the DB. findByID does the call 'eagerly'/immediately when you call it, thus you have the actual entity fully populated."
-        @url https://stackoverflow.com/questions/52656517/no-serializer-found-for-class-org-hibernate-proxy-pojo-bytebuddy-bytebuddyinterc
-        * */
-        Optional<Car> optionalCar = Optional.ofNullable(repository.findById(id).get());
-        Car car = optionalCar.orElseThrow(CarNotFoundException::new);
+        Car car = new Car();
+        Optional<Car> optionalCar = repository.findById(id);
+
+        if(optionalCar.isPresent()){
+            car = optionalCar.get();
         /**
          * TODO: Use the Pricing Web client you create in `VehiclesApiApplication`
          *   to get the price based on the `id` input'
@@ -68,8 +63,7 @@ public class CarService {
          * Note: The car class file uses @transient, meaning you will need to call
          *   the pricing service each time to get the price.
          */
-        car.setPrice(priceClient.getPrice(id));
-
+            car.setPrice(priceClient.getPrice(id));
         /**
          * TODO: Use the Maps Web client you create in `VehiclesApiApplication`
          *   to get the address for the vehicle. You should access the location
@@ -78,9 +72,10 @@ public class CarService {
          * Note: The Location class file also uses @transient for the address,
          * meaning the Maps service needs to be called each time for the address.
          */
-         car.setLocation(mapsClient.getAddress(car.getLocation()));
-
-
+            car.setLocation(mapsClient.getAddress(car.getLocation()));
+        } else {
+            throw new CarNotFoundException();
+        }
         return car;
     }
 
