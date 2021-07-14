@@ -66,7 +66,7 @@ public class CarControllerTest {
         Car car = getCar();
         car.setId(1L);
         given(carService.save(any())).willReturn(car);
-        given(carService.findById(any())).willReturn(car);
+        //given(carService.findById(any())).willReturn(car);
         given(carService.list()).willReturn(Collections.singletonList(car));
     }
 
@@ -114,6 +114,8 @@ public class CarControllerTest {
          * TODO: Add a test to check that the `get` method works by calling
          *   a vehicle by ID. This should utilize the car from `getCar()` below.
          */
+
+        given(carService.findById(any())).willReturn(getCar());
         mvc.perform(get("/cars/1"))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -126,7 +128,7 @@ public class CarControllerTest {
     @Test
     public void testCarNotFound() throws Exception {
 
-        mvc.perform(get("/cars/1000"))
+        mvc.perform(get("/cars/30"))
                 .andExpect(status().isNotFound())
                 .andDo(print());
     }
