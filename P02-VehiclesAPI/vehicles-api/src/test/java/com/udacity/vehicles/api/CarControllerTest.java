@@ -2,6 +2,7 @@ package com.udacity.vehicles.api;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,19 +33,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 /**
  * Implements testing of the CarController class.
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureJsonTesters
-public class CarControllerTest {
-
-    @Autowired
-    private MockMvc mvc;
+public class CarControllerTest extends AbstractTest{
 
     @Autowired
     private JacksonTester<Car> json;
@@ -63,10 +59,11 @@ public class CarControllerTest {
      */
     @Before
     public void setup() {
+        super.setUp();
         Car car = getCar();
         car.setId(1L);
         given(carService.save(any())).willReturn(car);
-        //given(carService.findById(any())).willReturn(car);
+        given(carService.findById(any())).willReturn(car);
         given(carService.list()).willReturn(Collections.singletonList(car));
     }
 
@@ -114,8 +111,6 @@ public class CarControllerTest {
          * TODO: Add a test to check that the `get` method works by calling
          *   a vehicle by ID. This should utilize the car from `getCar()` below.
          */
-
-        given(carService.findById(any())).willReturn(getCar());
         mvc.perform(get("/cars/1"))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -128,9 +123,16 @@ public class CarControllerTest {
     @Test
     public void testCarNotFound() throws Exception {
 
-        mvc.perform(get("/cars/30"))
+        /*mvc.perform(get("/cars/1000"))
                 .andExpect(status().isNotFound())
                 .andDo(print());
+
+         */
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/cars/1000")
+                .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+        int status = mvcResult.getResponse().getStatus();
+        assertEquals(404, status);
     }
 
     /**
