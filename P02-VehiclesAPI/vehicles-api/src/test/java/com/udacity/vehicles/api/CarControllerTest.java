@@ -63,7 +63,7 @@ public class CarControllerTest extends AbstractTest{
         Car car = getCar();
         car.setId(1L);
         given(carService.save(any())).willReturn(car);
-        given(carService.findById(any())).willReturn(car);
+        given(carService.findById(1L)).willReturn(car);
         given(carService.list()).willReturn(Collections.singletonList(car));
     }
 
